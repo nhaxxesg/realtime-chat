@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "real-time-chat"
+version = "0.1.0"
+description = "this is a practice project"
+authors = ["Josue Angel Ferro Quispe"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = "^0.115.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
