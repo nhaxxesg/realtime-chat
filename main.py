@@ -1,3 +1,4 @@
+from services.auth_service.schemas import Login
 from services.auth_service.service import Authentication
 from pydantic import BaseModel
 
@@ -30,8 +31,14 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2Pas
 
 app = FastAPI()
 
+authentication_service = Authentication()
+user_service = UserService(auth_service=authentication_service)
+
 # autenticacion con HTTPBearer
 async def credentials(auth_credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    token = auth_credentials.credentials
+    payload = authentication_service.decode_payload(token)
+
     return {"credentials": auth_credentials.credentials, "scheme": auth_credentials.scheme}
 
 
@@ -65,11 +72,23 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 async def get_users(current_user: str = Depends(get_current_user)):
     return current_user
 
-user_service = UserService()
+@app.post("/login")
+async def login(form_data: Login):
+    user_found = user_service.get_user_by_email(form_data.email)
+    if not user_found:
+        return {"error": "User not found"}
+    # validate the password
+    if not authentication_service.verify_password(form_data.password, user_found["password"]):
+        return {"error": "Invalid credentials"}
+    return authentication_service.encode_payload(user_found["email"], user_found["username"])
+
+def validate_token(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
+    authentication_service.decode_payload(credentials.credentials)
+
 
 @app.post("/users")
-async def create_user(user: UserProfileCreate):
-    return user_service.registe_user(user)
-
+async def create_user(user: UserProfileCreate, token: dict = Depends(validate_token)):
+    # extract token
+    return user_service.register_user(user)
 
 
