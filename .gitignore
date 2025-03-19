@@ -1,2 +1,5 @@
 # testion for now
 tests/*
+
+# pycache
+__pycache__/

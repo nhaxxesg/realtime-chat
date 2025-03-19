@@ -85,10 +85,14 @@ async def login(form_data: Login):
 def validate_token(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     authentication_service.decode_payload(credentials.credentials)
 
+from fastapi import UploadFile, File
 
 @app.post("/users")
-async def create_user(user: UserProfileCreate, token: dict = Depends(validate_token)):
-    # extract token
+async def create_user(user: UserProfileCreate, token: dict = Depends(validate_token), ):
     return user_service.register_user(user)
 
+# test files
 
+@app.post("/users/photo")
+async def upload_user_photo(file: UploadFile = File(...)):
+    ...
