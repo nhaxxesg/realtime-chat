@@ -1,3 +1,4 @@
+from typing import List
 from services.auth_service.schemas import Login
 from services.auth_service.service import Authentication
 from pydantic import BaseModel
@@ -96,3 +97,19 @@ async def create_user(user: UserProfileCreate, token: dict = Depends(validate_to
 @app.post("/users/photo")
 async def upload_user_photo(file: UploadFile = File(...)):
     ...
+
+# Realtime
+from fastapi import WebSocket
+
+websockets_clients: List[WebSocket] = []
+
+@app.websocket("/ws")
+async def chat(websocket: WebSocket):
+    await websocket.accept()
+    print(websocket)
+    websockets_clients.append(websocket)
+    while True:
+        message = await websocket.receive_text()
+        await websocket.send_text(f"Mensaje enviado -> {message}")
+        for client in websockets_clients:
+            await websocket.send_text("Texto de websockets")
