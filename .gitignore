@@ -3,3 +3,14 @@ tests/*
 
 # pycache
 __pycache__/
+
+# mypy
+.venv/
+.mypy_cache/
+# pyright
+.pyright/
+# pytype
+.pytype/
+
+# vscode
+.vscode/
