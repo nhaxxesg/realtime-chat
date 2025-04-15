@@ -1,3 +1,6 @@
+#env
+.env
+
 # testion for now
 tests/*
 
@@ -14,6 +17,3 @@ __pycache__/
 
 # vscode
 .vscode/
-
-#env
-.env
