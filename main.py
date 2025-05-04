@@ -9,11 +9,6 @@ from services.user_service.service import UserService
 
 authentication_service = Authentication()
 
-access_token = authentication_service.encode_payload("algo@example", "sapee")
-print(access_token)
-
-data = authentication_service.decode_payload(access_token)
-print(data)
 
 # password hashing
 password = "minibumer12"
@@ -27,7 +22,7 @@ print("IS VERIFIED", is_verified)
 
 # Endpoints to users
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Response
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer, OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 app = FastAPI()
@@ -74,14 +69,22 @@ async def get_users(current_user: str = Depends(get_current_user)):
     return current_user
 
 @app.post("/login")
-async def login(form_data: Login):
+async def login(form_data: Login, response: Response):
     user_found = user_service.get_user_by_email(form_data.email)
+
+    # save in redis
+    
+
     if not user_found:
         return {"error": "User not found"}
     # validate the password
     if not authentication_service.verify_password(form_data.password, user_found["password"]):
         return {"error": "Invalid credentials"}
-    return authentication_service.encode_payload(user_found["email"], user_found["username"])
+    # pass more data
+    print(user_found)
+    token = authentication_service.encode_payload(str(user_found["_id"]), user_found["email"], user_found["username"])
+    response.set_cookie(key="cookie", value=token )
+    return token
 
 def validate_token(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     authentication_service.decode_payload(credentials.credentials)
@@ -89,7 +92,7 @@ def validate_token(credentials: HTTPAuthorizationCredentials = Depends(HTTPBeare
 from fastapi import UploadFile, File
 
 @app.post("/users")
-async def create_user(user: UserProfileCreate, token: dict = Depends(validate_token), ):
+async def create_user(user: UserProfileCreate):
     return user_service.register_user(user)
 
 # test files

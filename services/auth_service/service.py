@@ -3,15 +3,16 @@ import os
 from passlib.hash import bcrypt
 from dataclasses import dataclass
 from fastapi.exceptions import HTTPException 
+from datetime import datetime, timezone, timedelta
 
 
 secret_key = os.getenv("SECRET_KEY")
 @dataclass
 class Authentication:
 
-    def encode_payload(self, email: str, username: str):
+    def encode_payload(self, user_id: str, email: str, username: str):
         # añadir los tipos de claims (payload) 
-        payload = {"email": email, "name": username}
+        payload = {"sub": user_id, "user_data": {"email": email, "name": username}, "exp": datetime.now(timezone.utc) + timedelta(minutes=1)}
         encoded = jwt.encode(payload, key=secret_key, algorithm="HS256")
         return encoded
     
