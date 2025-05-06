@@ -6,6 +6,8 @@ from pydantic import BaseModel
 from services.user_service.schemas import UserProfileCreate
 from services.user_service.service import UserService
 # example to autentication with jwt
+import redis
+import uuid
 
 authentication_service = Authentication()
 
@@ -72,7 +74,18 @@ async def get_users(current_user: str = Depends(get_current_user)):
 async def login(form_data: Login, response: Response):
     user_found = user_service.get_user_by_email(form_data.email)
 
-    # save in redis
+    
+    session_id = uuid.uuid4()
+    # construct data for redis
+    user_redis_data = {
+        "session_id": id,
+        "user_id ": str(user_found["_id"]),
+        "exp": 
+    }
+    
+    # redis connection
+    r = redis.Redis()
+    
     
 
     if not user_found:
