@@ -75,18 +75,11 @@ async def login(form_data: Login, response: Response):
     user_found = user_service.get_user_by_email(form_data.email)
 
     
-    session_id = uuid.uuid4()
-    # construct data for redis
-    user_redis_data = {
-        "session_id": id,
-        "user_id ": str(user_found["_id"]),
-        "exp": 
-    }
+    session_id = str(uuid.uuid4())
+
+    redis_connection = redis.Redis(host="localhost", port=6379, db=0)
     
-    # redis connection
-    r = redis.Redis()
-    
-    
+    redis_connection.set(str(user_found["_id"]), session_id, ex=3600)
 
     if not user_found:
         return {"error": "User not found"}
