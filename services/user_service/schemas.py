@@ -9,9 +9,11 @@ class UserProfile(BaseModel):
     created_at: str
     updated_at: str
 
+
 class Photo(BaseModel):
     name: str
     image_type: str
+
 
 class UserProfileCreate(BaseModel):
     username: str
