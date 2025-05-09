@@ -20,3 +20,6 @@ class UserProfileCreate(BaseModel):
     email: str
     password: str
     photo: Photo | None = None
+
+class UserProfilePreCreate(BaseModel):
+    

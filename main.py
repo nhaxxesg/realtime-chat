@@ -56,11 +56,6 @@ async def credentials(
     }
 
 
-@app.post("/register-user")
-async def register_user(token=Depends(credentials)):
-    print(token)
-
-
 # uso de OAuth2
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -114,17 +109,23 @@ async def Login(form_data: Login, response: Response):
     ):
         return {"error": "Invalid credentials"}
     # pass more data
-    print(user_found)
     token = authentication_service.encode_payload(
         str(user_found["_id"]), user_found["email"], user_found["username"]
     )
     response.set_cookie(key="cookie", value=token)
     return token
 
+# pre register user
+@app.post("/pre-register-user")
+async def pre_register_user(user_data: UserPreCreate):
+    ...
 
 def validate_token(credentials: HTTPAuthorizationCredentials = Depends(HTTPBearer())):
     authentication_service.decode_payload(credentials.credentials)
 
+# pre data collection
+@app.get("/pre-data-collection")
+async def pre_data_collection(data_collection: , ):
 
 @app.post("/users")
 async def create_user(user: UserProfileCreate):
